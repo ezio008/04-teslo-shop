@@ -22,6 +22,11 @@ $ docker-compose up -d
 $ yarn start:dev
 ```
 
+5. Ejecutar Seed
+```
+http://localhost:3000/api/seed
+```
+
 ## Stack usado
 * PostgresSQL
 * Nest

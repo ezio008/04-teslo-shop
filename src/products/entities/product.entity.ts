@@ -1,12 +1,15 @@
+import { Transform } from 'class-transformer';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { ProductImage } from './product-image.entity';
 
-@Entity()
+@Entity({ name: 'products' })
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -50,6 +53,17 @@ export class Product {
     default: [],
   })
   tags: string[];
+
+  @OneToMany(() => ProductImage, (productImage) => productImage.product, {
+    cascade: true,
+    eager: true,
+  })
+  @Transform(({ value }) => {
+    return value.map((image: ProductImage) => {
+      return image.url;
+    });
+  })
+  images?: ProductImage[];
 
   @BeforeInsert()
   @BeforeUpdate()
