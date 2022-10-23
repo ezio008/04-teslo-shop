@@ -18,7 +18,10 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { Auth, GetUser } from '../auth/decorators';
 import { ValidRoles } from '../auth/interfaces';
 import { User } from '../auth/entities/user.entity';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Product } from './entities/product.entity';
 
+@ApiTags('Products')
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('products')
 export class ProductsController {
@@ -26,6 +29,12 @@ export class ProductsController {
 
   @Post()
   @Auth(ValidRoles.admin)
+  @ApiResponse({
+    status: 201,
+    description: 'Product was created',
+    type: Product,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   create(@Body() createProductDto: CreateProductDto, @GetUser() user: User) {
     return this.productsService.create(createProductDto, user);
   }
