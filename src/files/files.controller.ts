@@ -3,7 +3,6 @@ import {
   Controller,
   Post,
   UseInterceptors,
-  BadRequestException,
   Get,
   Param,
   Res,

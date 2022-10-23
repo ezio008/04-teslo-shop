@@ -8,4 +8,5 @@ export const JoiValidationSchema = Joi.object({
   DB_USERNAME: Joi.required(),
   HOST_API: Joi.required(),
   PORT: Joi.required().default(3000),
+  JWT_SECRET: Joi.required(),
 });

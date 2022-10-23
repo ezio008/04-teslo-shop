@@ -1,26 +1,55 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateUserDto, LoginUserDto } from './dto';
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ErrorHandleService } from 'src/common/services/error-handle.service';
+import { Logger } from '@nestjs/common/services';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  private readonly logger = new Logger('AuthService');
+
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly errorHandle: ErrorHandleService,
+  ) {}
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    try {
+      const { password, ...userData } = createUserDto;
+
+      const user = this.userRepository.create({
+        ...userData,
+        password: bcrypt.hashSync(password, 10),
+      });
+
+      await this.userRepository.save(user);
+      delete user.password;
+
+      return user;
+    } catch (error) {
+      this.errorHandle.handleDBExpections(error, this.logger);
+    }
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async login(loginUserDto: LoginUserDto) {
+    const { email, password } = loginUserDto;
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: { email: true, password: true, isActive: true },
+    });
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    if (!user) throw new UnauthorizedException('User not exist');
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    if (!user.isActive) throw new UnauthorizedException('User inActive');
+
+    if (!bcrypt.compareSync(password, user.password))
+      throw new UnauthorizedException('Wrong password');
+
+    return user;
   }
 }
