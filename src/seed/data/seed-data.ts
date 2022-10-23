@@ -1,3 +1,4 @@
+import { ValidRoles } from '../../auth/interfaces/valid-roles';
 interface SeedProduct {
   description: string;
   images: string[];
@@ -15,10 +16,26 @@ type ValidSizes = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL';
 type ValidTypes = 'shirts' | 'pants' | 'hoodies' | 'hats';
 
 interface SeedData {
+  users: SeedUser[];
   products: SeedProduct[];
 }
 
+interface SeedUser {
+  email: string;
+  fullName: string;
+  password: string;
+  roles: string[];
+}
+
 export const initialData: SeedData = {
+  users: [
+    {
+      email: 'root@mail.com',
+      fullName: 'Super user',
+      password: 'JoeL?5935321515',
+      roles: [ValidRoles.admin, ValidRoles.superUser],
+    },
+  ],
   products: [
     {
       description:
