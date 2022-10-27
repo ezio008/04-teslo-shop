@@ -22,7 +22,7 @@ import { MessagesWsModule } from './messages-ws/messages-ws.module';
     TypeOrmModule.forRoot({
       ssl: process.env.STAGE === 'prod',
       extra: {
-        ssl: { rejectUnauthorize: false },
+        ssl: process.env.STAGE === 'prod' ? { rejectUnauthorized: false } : null,
       },
       type: 'postgres',
       host: process.env.DB_HOST,
